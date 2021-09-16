@@ -12,4 +12,8 @@ target/
 
 # NetBeans
 nb-configuration.xml
-/pif-application/nbproject/
+nbproject/
+
+# Allure
+.allure/
+allure-results/
