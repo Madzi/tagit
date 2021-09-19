@@ -61,6 +61,7 @@
         <plugin.version.allure>2.10.0</plugin.version.allure>
 
         <lib.version.slf4j>2.0.0-alpha5</lib.version.slf4j>
+        <lib.version.jakson.dataformat.xml>2.13.0-rc2</lib.version.jakson.dataformat.xml>
         <lib.version.junit.jupiter>5.7.2</lib.version.junit.jupiter>
         <lib.version.mockito>3.12.4</lib.version.mockito>
         <lib.version.allure>2.14.0</lib.version.allure>
@@ -78,6 +79,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${lib.version.slf4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+                <version>${lib.version.jakson.dataformat.xml}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -160,6 +166,31 @@
                     <artifactId>allure-maven</artifactId>
                     <version>${plugin.version.allure}</version>
                 </plugin>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-checkstyle-plugin</artifactId>
+                                        <versionRange>[3.1.2,)</versionRange>
+                                        <goals>
+                                            <goal>check</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -187,6 +218,11 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.13.0-rc2</version>
         </dependency>
     </dependencies>
 
