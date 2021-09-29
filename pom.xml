@@ -4,11 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>madzi.apps</groupId>
-    <artifactId>tagit</artifactId>
+    <artifactId>tag</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <name>TagIt</name>
-    <description>The TagIt application for manage resources</description>
+    <description>PoC TagIt applicatyion</description>
     <url>https://github.com/Madzi/tagit</url>
     <inceptionYear>2021</inceptionYear>
 
@@ -41,16 +42,28 @@
     </issueManagement>
 
     <properties>
-        <encoding>UTF-8</encoding>
-        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
-
-        <java.version>11</java.version>
+        <!-- Encoding -->
+        <project.encoding>UTF-8</project.encoding>
+        <project.build.sourceEncoding>${project.encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${project.encoding}</project.reporting.outputEncoding>
+        <!-- Java Version -->
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-
+        <!-- Project setting -->
+        <modules.dir>${project.build.directory}/modules</modules.dir>
+        <module.name>madzi.apps.tag</module.name>
+        <main.class>madzi.apps.tagit.TagItApp</main.class>
+        <dist.dir>${project.build.directory}/dist</dist.dir>
+        <app.image>${project.build.directory}/jlink-image</app.image>
+        <!-- Plugins -->
         <plugin.version.compiler>3.8.1</plugin.version.compiler>
+        <plugin.version.dependency>3.2.0</plugin.version.dependency>
+        <plugin.version.jar>3.2.0</plugin.version.jar>
+        <plugin.version.resources>3.2.0</plugin.version.resources>
         <plugin.version.surefire>3.0.0-M5</plugin.version.surefire>
         <plugin.version.surefire-report>3.0.0-M5</plugin.version.surefire-report>
+        <plugin.version.failsafe>3.0.0-M5</plugin.version.failsafe>
         <plugin.version.info-reports>3.1.2</plugin.version.info-reports>
         <plugin.version.javadoc>3.3.0</plugin.version.javadoc>
         <plugin.version.jxr>3.1.1</plugin.version.jxr>
@@ -59,12 +72,15 @@
         <plugin.version.checkstyle>3.1.2</plugin.version.checkstyle>
         <plugin.version.jacoco>0.8.7</plugin.version.jacoco>
         <plugin.version.allure>2.10.0</plugin.version.allure>
-
+        <!-- Dependencies -->
         <lib.version.slf4j>2.0.0-alpha5</lib.version.slf4j>
-        <lib.version.junit.jupiter>5.7.2</lib.version.junit.jupiter>
-        <lib.version.mockito>3.12.4</lib.version.mockito>
-        <lib.version.allure>2.14.0</lib.version.allure>
-        <lib.version.aspectj>1.9.7</lib.version.aspectj>
+        <lib.version.jakson.dataformat.xml>2.13.0-rc2</lib.version.jakson.dataformat.xml>
+        <lib.version.picocli>4.6.1</lib.version.picocli>
+        <!-- Test Dependencies -->
+        <test.lib.version.junit.jupiter>5.7.2</test.lib.version.junit.jupiter>
+        <test.lib.version.mockito>3.12.4</test.lib.version.mockito>
+        <test.lib.version.allure>2.14.0</test.lib.version.allure>
+        <test.lib.version.aspectj>1.9.7</test.lib.version.aspectj>
     </properties>
 
     <dependencyManagement>
@@ -80,24 +96,34 @@
                 <version>${lib.version.slf4j}</version>
             </dependency>
             <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${lib.version.picocli}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+                <version>${lib.version.jakson.dataformat.xml}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>${lib.version.junit.jupiter}</version>
+                <version>${test.lib.version.junit.jupiter}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>${lib.version.junit.jupiter}</version>
+                <version>${test.lib.version.junit.jupiter}</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${lib.version.mockito}</version>
+                <version>${test.lib.version.mockito}</version>
             </dependency>
             <dependency>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-junit5</artifactId>
-                <version>${lib.version.allure}</version>
+                <version>${test.lib.version.allure}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -105,64 +131,143 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- This plugin's configuration is used to store Eclipse m2e settings only. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecyccleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-toolchains-plugin</artifactId>
+                                        <versionRange>[3.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>toolchain</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecyccleMappingMetadata>
+                    </configuration>
+                </plugin>
+                <!-- Compiler -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${plugin.version.compiler}</version>
                 </plugin>
+                <!-- Dependency plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${plugin.version.dependency}</version>
+                </plugin>
+                <!-- JAR plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${plugin.version.jar}</version>
+                </plugin>
+                <!-- Resources -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${plugin.version.resources}</version>
+                </plugin>
+                <!-- Unit tests plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${plugin.version.surefire}</version>
                 </plugin>
+                <!-- Integration tests plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${plugin.version.failsafe}</version>
+                </plugin>
+                <!-- Site info reports -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>${plugin.version.info-reports}</version>
                 </plugin>
+                <!-- JavaDoc -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${plugin.version.javadoc}</version>
                 </plugin>
+                <!-- Site reports -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-report-plugin</artifactId>
                     <version>${plugin.version.surefire-report}</version>
                 </plugin>
+                <!-- JXR reporting -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jxr-plugin</artifactId>
                     <version>${plugin.version.jxr}</version>
                 </plugin>
+                <!-- Site -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${plugin.version.site}</version>
                 </plugin>
+                <!-- PMD -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
                     <version>${plugin.version.pmd}</version>
                 </plugin>
+                <!-- Checkstyle -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>${plugin.version.checkstyle}</version>
                 </plugin>
+                <!-- Jar plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+                <!-- Test coverage -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${plugin.version.jacoco}</version>
                 </plugin>
+                <!-- QA Tools -->
                 <plugin>
                     <groupId>io.qameta.allure</groupId>
                     <artifactId>allure-maven</artifactId>
                     <version>${plugin.version.allure}</version>
                 </plugin>
+                <!-- Work with modules -->
+                <plugin>
+                    <groupId>org.moditect</groupId>
+                    <artifactId>moditect-maven-plugin</artifactId>
+                    <version>1.0.0.RC1</version>
+                </plugin>
+                <!-- JPackage plugin -->
+                <plugin>
+                    <groupId>org.panteleyev</groupId>
+                    <artifactId>jpackage-maven-plugin</artifactId>
+                    <version>1.4.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- Compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -172,9 +277,116 @@
                     <release>${java.version}</release>
                 </configuration>
             </plugin>
+            <!-- Dependency plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${modules.dir}</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${modules.dir}</outputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>${project.encoding}</encoding>
+                            <outputDirectory>${modules.dir}/${module.name}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <filtering>true</filtering>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <include>**/*</include>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>--module-path</argument>
+                        <argument>${modules.dir}</argument>
+                        <argument>--module</argument>
+                        <argument>${module.name}/${main.class}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-runtime-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>create-runtime-image</goal>
+                        </goals>
+                        <configuration>
+                            <modulePath>
+                                <path>${modules.dir}</path>
+                            </modulePath>
+                            <modules>
+                                <module>${module.name}</module>
+                            </modules>
+                            <launcher>
+                                <name>TagIt</name>
+                                <module>${module.name}/${main.class}</module>
+                            </launcher>
+                            <compression>2</compression>
+                            <stripDebug>true</stripDebug>
+                            <outputDirectory>${project.build.directory}/jlink-image</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <configuration>
+                    <name>TagIt</name>
+                    <appVersion>${project.version}</appVersion>
+                    <vendor>Madzi</vendor>
+                    <type>APP_IMAGE</type>
+                    <module>${module.name}/${main.class}</module>
+                    <runtimeImage>${project.build.directory}/jlink-image</runtimeImage>
+                    <destination>${dist.dir}</destination>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -188,54 +400,54 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
         </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
         <profile>
-            <id>code-quality</id>
+            <id>win</id>
             <activation>
-                <file>
-                    <exists>src/main/java</exists>
-                </file>
+                <os>
+                    <family>windows</family>
+                </os>
             </activation>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>checkstyle</id>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
                         <configuration>
-                            <encoding>${encoding}</encoding>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                            <logViolationsToConsole>true</logViolationsToConsole>
-                            <configLocation>config/checkstyle.xml</configLocation>
+                            <icon>icons/icons.ico</icon>
                         </configuration>
-                        <dependencies>
-                            <dependency>
-                                <groupId>com.puppycrawl.tools</groupId>
-                                <artifactId>checkstyle</artifactId>
-                                <version>9.0</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
-            <reporting>
+        </profile>
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <configuration>
+                            <icon>icons/icons.icns</icon>
+                        </configuration>
                     </plugin>
                 </plugins>
-            </reporting>
+            </build>
         </profile>
         <profile>
             <id>testing</id>
@@ -275,7 +487,7 @@
                             <dependency>
                                 <groupId>org.aspectj</groupId>
                                 <artifactId>aspectjweaver</artifactId>
-                                <version>${lib.version.aspectj}</version>
+                                <version>${test.lib.version.aspectj}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -365,6 +577,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-filesafe-report-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
