@@ -369,7 +369,7 @@
                                 <module>${module.name}/${main.class}</module>
                             </launcher>
                             <compression>2</compression>
-                            <stripDebug>true</stripDebug>
+                            <stripDebug>false</stripDebug>
                             <outputDirectory>${project.build.directory}/jlink-image</outputDirectory>
                         </configuration>
                     </execution>
@@ -403,10 +403,6 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
     </dependencies>
 
