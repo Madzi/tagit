@@ -14,6 +14,8 @@ public interface ResourceService {
 
     void add(Resource resource);
 
+    boolean remove(Resource resource);
+
     /**
      * Returns all available resources.
      *

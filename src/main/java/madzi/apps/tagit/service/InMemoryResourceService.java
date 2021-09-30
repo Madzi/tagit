@@ -16,7 +16,7 @@ public class InMemoryResourceService implements ResourceService {
     }
 
     @Override
-    public Optional<Resource> find(URI location) {
+    public Optional<Resource> find(final URI location) {
         if (resources.containsKey(location)) {
             return Optional.of(resources.get(location));
         }
@@ -25,8 +25,17 @@ public class InMemoryResourceService implements ResourceService {
     }
 
     @Override
-    public void add(Resource resource) {
+    public void add(final Resource resource) {
         resources.put(resource.location(), resource);
+    }
+
+    @Override
+    public boolean remove(final Resource resource) {
+        if (resources.containsKey(resource.location())) {
+            resources.remove(resource.location());
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -35,7 +44,7 @@ public class InMemoryResourceService implements ResourceService {
     }
 
     @Override
-    public void addAll(Iterable<Resource> resources) {
+    public void addAll(final Iterable<Resource> resources) {
         resources.forEach(this::add);
     }
 }

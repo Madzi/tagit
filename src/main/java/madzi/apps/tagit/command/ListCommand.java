@@ -1,7 +1,7 @@
 package madzi.apps.tagit.command;
 
-import java.text.MessageFormat;
 import java.util.concurrent.Callable;
+
 import madzi.apps.tagit.domain.Resource;
 import madzi.apps.tagit.service.ResourceService;
 import picocli.CommandLine;
@@ -16,14 +16,13 @@ public class ListCommand implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() throws Exception {
+    public Integer call() {
         for (Resource resource : resourceService.findAll()) {
             System.out.println(resource.location());
             resource.tags().forEach((key, value) -> {
-                System.out.println(MessageFormat.format(" - {} : {}", key, value));
+                System.out.println(" - " + key + " : " + value);
             });
         }
-
         return 0;
     }
 }
